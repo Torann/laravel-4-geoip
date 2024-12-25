@@ -46,7 +46,13 @@ class IpQuery extends \Torann\GeoIP\Services\AbstractService
             throw new Exception('Request failed (' . $this->client->getErrors() . ')');
         }
 
-        $json = json_decode($data[0], true);
+        $json = json_decode($data[0], true)['location'];
+        // Check if currency is available IPQuery API doesn't provide it
+
+        if (empty($json['currency'])) {
+            $currencies = require __DIR__.'/../support/currencies.php';
+            $json['currency'] = $currencies[$json['country_code']];
+        }
 
         return $this->hydrate($json['location']);
     }
